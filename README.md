@@ -15,21 +15,24 @@ Use ARM templates and PowerShell to automate deployment of a secure configuratio
 3. Create Virtual Network and Subnets
     * Use ARM template.
     * VNet: ${prefix}-vnet with address space, e.g., 10.0.0.0/16
-    * Subnet: Application Gateway subnet: name ${prefix}-agw-subnet, small CIDR e.g., 10.0.0.0/24
-    * Subnet: ACI subnet: ${prefix}-aci-subnet, small CIDR e.g., 10.0.1.0/24
+    * Subnet: Deligated Application Gateway subnet: name ${prefix}-agw-subnet, small CIDR e.g., 10.0.0.0/24, with service endpoint for Key Vault
+    * Subnet: Deligated Microsoft.ContainerInstance/containerGroups to ACI subnet: ${prefix}-aci-subnet, small CIDR e.g., 10.0.1.0/24
+    * Subnet: Miscelaneous subnet for Key Vault Private Endpoint and future resources: ${prefix}-misc-subnet, small CIDR e.g., 10.0.2.0/24
     Note: ACI currently requires a delegated subnet to "Microsoft.ContainerInstance/containerGroups"
+    * NAT Gateway: Associated to ACI Subnet (Azure retired default outbound access for Virtual Machines)
 
 4. Create User Assigned Managed Identity (This identity will later be assigned to Application Gateway)
     * Name: ${prefix}-uami
     * Location: EastUS2
 
 5. Prepare Key Vault / Certificate Permissions
-    * Create Certificate
+    * Dependency on Vnet to create Private Endpoint in ${prefix}-aci-subnet, small CIDR e.g., 10.0.1.0/24
+    * Generate Certificate
     * Assign get and list secret permissions for the UAMI on this Key Vault. This ensures the Application Gateway can retrieve the HTTPS certificate.
 
 6. Deploy Application Gateway via ARM Template
     * Use an ARM template for flexibility:
-    * Reference the existing UAMI (created previously).
+    * Reference the existing UAMI (created previously). https://learn.microsoft.com/en-us/azure/application-gateway/key-vault-certs?WT.mc_id=Portal-Microsoft_Azure_HybridNetworking#key-vault-azure-role-based-access-control-permission-model
     * Integrate HTTPS listener that uses certificate from Key Vault (via UAMI permissions).
     * Deploy into the dedicated subnet (${prefix}-agw-subnet).
     * Set sizing to appropriate SKU (small or medium) since subnets are small.

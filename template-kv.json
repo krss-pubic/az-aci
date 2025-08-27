@@ -1,0 +1,206 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "name": {
+            "type": "String"
+        },
+        "location": {
+            "type": "String"
+        },
+        "sku": {
+            "type": "String"
+        },
+        "accessPolicies": {
+            "type": "Array"
+        },
+        "tenant": {
+            "type": "String"
+        },
+        "enabledForDeployment": {
+            "type": "Bool"
+        },
+        "enabledForTemplateDeployment": {
+            "type": "Bool"
+        },
+        "enabledForDiskEncryption": {
+            "type": "Bool"
+        },
+        "enableRbacAuthorization": {
+            "type": "Bool"
+        },
+        "publicNetworkAccess": {
+            "type": "String"
+        },
+        "enableSoftDelete": {
+            "type": "Bool"
+        },
+        "softDeleteRetentionInDays": {
+            "type": "Int"
+        },
+        "networkAcls": {
+            "type": "Object"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2024-11-01",
+            "name": "[parameters('name')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [],
+            "tags": {
+                "Environment": "Development",
+                "Organization": "Development"
+            },
+            "properties": {
+                "enabledForDeployment": "[parameters('enabledForDeployment')]",
+                "enabledForTemplateDeployment": "[parameters('enabledForTemplateDeployment')]",
+                "enabledForDiskEncryption": "[parameters('enabledForDiskEncryption')]",
+                "enableRbacAuthorization": "[parameters('enableRbacAuthorization')]",
+                "accessPolicies": "[parameters('accessPolicies')]",
+                "tenantId": "[parameters('tenant')]",
+                "sku": {
+                    "name": "[parameters('sku')]",
+                    "family": "A"
+                },
+                "publicNetworkAccess": "[parameters('publicNetworkAccess')]",
+                "enableSoftDelete": "[parameters('enableSoftDelete')]",
+                "softDeleteRetentionInDays": "[parameters('softDeleteRetentionInDays')]",
+                "networkAcls": "[parameters('networkAcls')]"
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "name": "test-aci-kv-pep_7544568f-7032-4371-bbb3-c7c13b22002b",
+            "dependsOn": [
+                "Microsoft.KeyVault/vaults/test-aci-kv"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "parameters": {
+                    "privateEndpointName": {
+                        "value": "test-aci-kv-pep"
+                    },
+                    "privateEndpointConnectionId": {
+                        "value": "/subscriptions/89382f9a-deac-49be-a1af-9a3a8d7ceed3/resourceGroups/test-aci-rg/providers/Microsoft.Network/privateEndpoints/privateLinkServiceConnections/test-aci-kv-pep_43b12663-dc2a-46bb-80ff-8661d22c411d"
+                    },
+                    "privateEndpointConnectionName": {
+                        "value": "test-aci-kv-pep_43b12663-dc2a-46bb-80ff-8661d22c411d"
+                    },
+                    "privateEndpointId": {
+                        "value": "/subscriptions/89382f9a-deac-49be-a1af-9a3a8d7ceed3/resourceGroups/test-aci-rg/providers/Microsoft.Network/privateEndpoints/test-aci-kv-pep"
+                    },
+                    "privateEndpointApiVersion": {
+                        "value": "2024-05-01"
+                    },
+                    "privateLinkServiceId": {
+                        "value": "/subscriptions/89382f9a-deac-49be-a1af-9a3a8d7ceed3/resourceGroups/test-aci-rg/providers/Microsoft.KeyVault/vaults/test-aci-kv"
+                    },
+                    "groupId": {
+                        "value": "vault"
+                    },
+                    "subnetId": {
+                        "value": "/subscriptions/89382f9a-deac-49be-a1af-9a3a8d7ceed3/resourceGroups/test-aci-rg/providers/Microsoft.Network/virtualNetworks/test-aci-vnet/subnets/test-aci-misc-subnet"
+                    },
+                    "location": {
+                        "value": "centralus"
+                    },
+                    "tags": {
+                        "value": {
+                            "Environment": "Development",
+                            "Organization": "Development"
+                        }
+                    }
+                },
+                "templatelink": {
+                    "contentVersion": "1.0.0.0",
+                    "uri": "https://keyvault.hosting.portal.azure.net/keyvault/Content/1.2.409.0/DeploymentTemplates/PrivateEndpointForKeyVault.json"
+                }
+            },
+            "resources": [],
+            "subscriptionId": "89382f9a-deac-49be-a1af-9a3a8d7ceed3",
+            "resourceGroup": "test-aci-rg"
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "name": "PrivateDns-7544568f70324371bbb3c7c13b22002c",
+            "dependsOn": [
+                "[string('test-aci-kv-pep_7544568f-7032-4371-bbb3-c7c13b22002b')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                            "type": "Microsoft.Network/privateDnsZones",
+                            "apiVersion": "2024-06-01",
+                            "name": "[string('privatelink.vaultcore.azure.net')]",
+                            "location": "global",
+                            "tags": {},
+                            "properties": {}
+                        },
+                        {
+                            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+                            "apiVersion": "2024-06-01",
+                            "name": "[concat(string('privatelink.vaultcore.azure.net'), '/', uniqueString(string('/subscriptions/89382f9a-deac-49be-a1af-9a3a8d7ceed3/resourceGroups/test-aci-rg/providers/Microsoft.Network/virtualNetworks/test-aci-vnet')))]",
+                            "location": "global",
+                            "dependsOn": [
+                                "[string('privatelink.vaultcore.azure.net')]"
+                            ],
+                            "properties": {
+                                "virtualNetwork": {
+                                    "id": "[string('/subscriptions/89382f9a-deac-49be-a1af-9a3a8d7ceed3/resourceGroups/test-aci-rg/providers/Microsoft.Network/virtualNetworks/test-aci-vnet')]"
+                                },
+                                "registrationEnabled": false
+                            }
+                        },
+                        {
+                            "apiVersion": "2017-05-10",
+                            "name": "EndpointDnsRecords-7544568f70324371bbb3c7c13b22002c",
+                            "type": "Microsoft.Resources/deployments",
+                            "dependsOn": [
+                                "[string('privatelink.vaultcore.azure.net')]"
+                            ],
+                            "properties": {
+                                "mode": "Incremental",
+                                "templatelink": {
+                                    "contentVersion": "1.0.0.0",
+                                    "uri": "https://keyvault.hosting.portal.azure.net/keyvault/Content/1.2.409.0/DeploymentTemplates/PrivateDnsForPrivateEndpoint.json"
+                                },
+                                "parameters": {
+                                    "privateDnsName": {
+                                        "value": "[string('privatelink.vaultcore.azure.net')]"
+                                    },
+                                    "privateEndpointNicResourceId": {
+                                        "value": "[reference('test-aci-kv-pep_7544568f-7032-4371-bbb3-c7c13b22002b').outputs.networkinterfaceid.value]"
+                                    },
+                                    "nicRecordsTemplateUri": {
+                                        "value": "https://keyvault.hosting.portal.azure.net/keyvault/Content/1.2.409.0/DeploymentTemplates/PrivateDnsForPrivateEndpointNic.json"
+                                    },
+                                    "ipConfigRecordsTemplateUri": {
+                                        "value": "https://keyvault.hosting.portal.azure.net/keyvault/Content/1.2.409.0/DeploymentTemplates/PrivateDnsForPrivateEndpointIpConfig.json"
+                                    },
+                                    "uniqueId": {
+                                        "value": "7544568f70324371bbb3c7c13b22002c"
+                                    },
+                                    "existingRecords": {
+                                        "value": {}
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "subscriptionId": "[string('89382f9a-deac-49be-a1af-9a3a8d7ceed3')]",
+            "resourceGroup": "[string('test-aci-rg')]"
+        }
+    ],
+    "outputs": {}
+}

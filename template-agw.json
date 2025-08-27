@@ -1,0 +1,184 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "String"
+        },
+        "applicationGatewayName": {
+            "type": "String"
+        },
+        "tier": {
+            "type": "String"
+        },
+        "skuSize": {
+            "type": "String"
+        },
+        "capacity": {
+            "defaultValue": 2,
+            "type": "Int"
+        },
+        "subnetName": {
+            "type": "String"
+        },
+        "zones": {
+            "type": "Array"
+        },
+        "publicIpZones": {
+            "type": "Array"
+        },
+        "publicIpAddressName": {
+            "type": "Array"
+        },
+        "sku": {
+            "type": "Array"
+        },
+        "allocationMethod": {
+            "type": "Array"
+        },
+        "ipAddressVersion": {
+            "type": "Array"
+        },
+        "privateIpAddress": {
+            "type": "Array"
+        },
+        "autoScaleMaxCapacity": {
+            "type": "Int"
+        }
+    },
+    "variables": {
+        "vnetId": "/subscriptions/89382f9a-deac-49be-a1af-9a3a8d7ceed3/resourceGroups/test-aci-rg/providers/Microsoft.Network/virtualNetworks/test-aci-vnet",
+        "publicIPRef": [
+            "[resourceId('Microsoft.Network/publicIPAddresses/', parameters('publicIpAddressName')[0])]"
+        ],
+        "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
+        "applicationGatewayId": "[resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/applicationGateways",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('applicationGatewayName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/publicIPAddresses/', parameters('publicIpAddressName')[0])]"
+            ],
+            "tags": {
+                "Environment": "Development",
+                "Organization": "Development"
+            },
+            "zones": "[parameters('zones')]",
+            "properties": {
+                "sku": {
+                    "name": "[parameters('skuSize')]",
+                    "tier": "[parameters('tier')]"
+                },
+                "gatewayIPConfigurations": [
+                    {
+                        "name": "appGatewayIpConfig",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            }
+                        }
+                    }
+                ],
+                "frontendIPConfigurations": [
+                    {
+                        "name": "appGwPublicFrontendIpIPv4",
+                        "properties": {
+                            "PublicIPAddress": {
+                                "id": "[variables('publicIPRef')[0]]"
+                            }
+                        }
+                    }
+                ],
+                "frontendPorts": [
+                    {
+                        "name": "port_80",
+                        "properties": {
+                            "Port": 80
+                        }
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "test-aci-bep",
+                        "properties": {
+                            "backendAddresses": []
+                        }
+                    }
+                ],
+                "backendHttpSettingsCollection": [
+                    {
+                        "name": "test-aci-agw-bes",
+                        "properties": {
+                            "Port": 80,
+                            "Protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "requestTimeout": 20
+                        }
+                    }
+                ],
+                "backendSettingsCollection": [],
+                "httpListeners": [
+                    {
+                        "name": "test-aci-agw-listener",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(variables('applicationGatewayId'), '/frontendIPConfigurations/appGwPublicFrontendIpIPv4')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(variables('applicationGatewayId'), '/frontendPorts/port_80')]"
+                            },
+                            "protocol": "Http",
+                            "sslCertificate": null,
+                            "customErrorConfigurations": []
+                        }
+                    }
+                ],
+                "listeners": [],
+                "requestRoutingRules": [
+                    {
+                        "Name": "test-aci-agw-routingrule",
+                        "properties": {
+                            "RuleType": "Basic",
+                            "httpListener": {
+                                "id": "[concat(variables('applicationGatewayId'), '/httpListeners/test-aci-agw-listener')]"
+                            },
+                            "priority": 100,
+                            "backendAddressPool": {
+                                "id": "[concat(variables('applicationGatewayId'), '/backendAddressPools/test-aci-bep')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(variables('applicationGatewayId'), '/backendHttpSettingsCollection/test-aci-agw-bes')]"
+                            }
+                        }
+                    }
+                ],
+                "routingRules": [],
+                "enableHttp2": true,
+                "sslCertificates": [],
+                "probes": [],
+                "autoscaleConfiguration": {
+                    "minCapacity": "[parameters('capacity')]",
+                    "maxCapacity": "[parameters('autoScaleMaxCapacity')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-08-01",
+            "name": "[parameters('publicIpAddressName')[0]]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "[parameters('sku')[0]]"
+            },
+            "zones": "[parameters('publicIpZones')]",
+            "properties": {
+                "publicIPAddressVersion": "[parameters('ipAddressVersion')[0]]",
+                "publicIPAllocationMethod": "[parameters('allocationMethod')[0]]"
+            }
+        }
+    ]
+}

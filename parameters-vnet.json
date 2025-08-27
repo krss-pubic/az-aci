@@ -1,0 +1,253 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "centralus"
+        },
+        "extendedLocation": {
+            "value": {}
+        },
+        "virtualNetworkName": {
+            "value": "test-aci-vnet"
+        },
+        "tagsByResource": {
+            "value": {
+                "Microsoft.Network/virtualNetworks": {
+                    "Environment": "Development",
+                    "Organization": "Development"
+                },
+                "Microsoft.Network/ddosProtectionPlans": {
+                    "Environment": "Development",
+                    "Organization": "Development"
+                },
+                "Microsoft.Network/publicIPAddresses": {
+                    "Environment": "Development",
+                    "Organization": "Development"
+                },
+                "Microsoft.Network/azureFirewalls": {
+                    "Environment": "Development",
+                    "Organization": "Development"
+                },
+                "Microsoft.Network/bastionHosts": {
+                    "Environment": "Development",
+                    "Organization": "Development"
+                },
+                "Microsoft.Network/natGateways": {
+                    "Environment": "Development",
+                    "Organization": "Development"
+                },
+                "Microsoft.Network/publicIPPrefixes": {
+                    "Environment": "Development",
+                    "Organization": "Development"
+                },
+                "Microsoft.Network/networkSecurityGroups": {
+                    "Environment": "Development",
+                    "Organization": "Development"
+                }
+            }
+        },
+        "addressSpace": {
+            "value": {
+                "addressPrefixes": [
+                    "10.0.0.0/16"
+                ]
+            }
+        },
+        "natGatewaysWithNewPublicIpAddress": {
+            "value": [
+                {
+                    "name": "test-aci-ngw",
+                    "properties": {
+                        "publicIpAddresses": [
+                            {
+                                "id": "/subscriptions/89382f9a-deac-49be-a1af-9a3a8d7ceed3/resourcegroups/test-aci-rg/providers/Microsoft.Network/publicIpAddresses/test-aci-subnet"
+                            }
+                        ],
+                        "publicIpPrefixes": []
+                    }
+                }
+            ]
+        },
+        "natGatewaysWithoutNewPublicIpAddress": {
+            "value": []
+        },
+        "natGatewayPublicIpAddressesNewNames": {
+            "value": [
+                "test-aci-subnet"
+            ]
+        },
+        "networkSecurityGroupsNew": {
+            "value": [
+                {
+                    "name": "test-aci-agw-nsg"
+                },
+                {
+                    "name": "test-aci-nsg"
+                },
+                {
+                    "name": "test-aci-misc-nsg"
+                }
+            ]
+        },
+        "subnets": {
+            "value": [
+                {
+                    "name": "test-aci-agw-subnet",
+                    "properties": {
+                        "addressPrefixes": [
+                            "10.0.0.0/24"
+                        ],
+                        "privateEndpointNetworkPolicies": "Disabled",
+                        "delegations": [
+                            {
+                                "name": "Microsoft.Network/applicationGateways",
+                                "id": "/subscriptions/89382f9a-deac-49be-a1af-9a3a8d7ceed3/resourceGroup/test-aci-rg/providers/Microsoft.Network/availableDelegations/Microsoft.Network.applicationGateways",
+                                "properties": {
+                                    "actions": [
+                                        "Microsoft.Network/virtualNetworks/subnets/join/action"
+                                    ],
+                                    "serviceName": "Microsoft.Network/applicationGateways"
+                                },
+                                "type": "Microsoft.Network/availableDelegations"
+                            }
+                        ],
+                        "serviceEndpoints": [
+                            {
+                                "service": "Microsoft.KeyVault"
+                            }
+                        ],
+                        "networkSecurityGroup": {
+                            "id": "/subscriptions/89382f9a-deac-49be-a1af-9a3a8d7ceed3/resourcegroups/test-aci-rg/providers/Microsoft.Network/networkSecurityGroups/test-aci-agw-nsg"
+                        }
+                    }
+                },
+                {
+                    "name": "test-aci-subnet",
+                    "properties": {
+                        "addressPrefixes": [
+                            "10.0.1.0/24"
+                        ],
+                        "privateEndpointNetworkPolicies": "Disabled",
+                        "delegations": [
+                            {
+                                "name": "Microsoft.ContainerInstance/containerGroups",
+                                "id": "/subscriptions/89382f9a-deac-49be-a1af-9a3a8d7ceed3/resourceGroup/test-aci-rg/providers/Microsoft.Network/availableDelegations/Microsoft.ContainerInstance.containerGroups",
+                                "properties": {
+                                    "actions": [
+                                        "Microsoft.Network/virtualNetworks/subnets/action"
+                                    ],
+                                    "serviceName": "Microsoft.ContainerInstance/containerGroups"
+                                },
+                                "type": "Microsoft.Network/availableDelegations"
+                            }
+                        ],
+                        "natGateway": {
+                            "id": "/subscriptions/89382f9a-deac-49be-a1af-9a3a8d7ceed3/resourcegroups/test-aci-rg/providers/Microsoft.Network/natGateways/test-aci-ngw"
+                        },
+                        "networkSecurityGroup": {
+                            "id": "/subscriptions/89382f9a-deac-49be-a1af-9a3a8d7ceed3/resourcegroups/test-aci-rg/providers/Microsoft.Network/networkSecurityGroups/test-aci-nsg"
+                        }
+                    }
+                },
+                {
+                    "name": "test-aci-misc-subnet",
+                    "properties": {
+                        "addressPrefixes": [
+                            "10.0.2.0/24"
+                        ],
+                        "privateEndpointNetworkPolicies": "Disabled",
+                        "networkSecurityGroup": {
+                            "id": "/subscriptions/89382f9a-deac-49be-a1af-9a3a8d7ceed3/resourcegroups/test-aci-rg/providers/Microsoft.Network/networkSecurityGroups/test-aci-misc-nsg"
+                        }
+                    }
+                }
+            ]
+        },
+        "ddosProtectionPlanEnabled": {
+            "value": false
+        },
+        "firewallEnabled": {
+            "value": false
+        },
+        "firewallSkuTier": {
+            "value": "Standard"
+        },
+        "firewallPolicyIsNew": {},
+        "firewallPolicyId": {},
+        "firewallPolicyTier": {},
+        "firewallPublicIpAddressIsNew": {
+            "value": false
+        },
+        "firewallPublicIpAddressId": {
+            "value": ""
+        },
+        "bastionEnabled": {
+            "value": false
+        },
+        "bastionPublicIpAddressIsNew": {
+            "value": false
+        },
+        "bastionPublicIPAddressId": {
+            "value": ""
+        },
+        "bastionNsgIsNew": {},
+        "bastionNsgId": {},
+        "encryptionEnabled": {
+            "value": false
+        },
+        "encryptionEnforcement": {
+            "value": "AllowUnencrypted"
+        },
+        "addressSpaceStartingAddressChanged": {
+            "value": false
+        },
+        "addressSpaceAddressSizeChanged": {
+            "value": false
+        },
+        "ipv6Enabled": {
+            "value": false
+        },
+        "defaultSubnetChanged": {
+            "value": true
+        },
+        "subnetsInfo": {
+            "value": [
+                {
+                    "cidr": "10.0.0.0/24",
+                    "name": "Default",
+                    "natGw": "none",
+                    "nsg": "new",
+                    "udr": "none"
+                },
+                {
+                    "cidr": "10.0.1.0/24",
+                    "name": "Default",
+                    "natGw": "new",
+                    "nsg": "new",
+                    "udr": "none"
+                },
+                {
+                    "cidr": "10.0.2.0/24",
+                    "name": "Default",
+                    "natGw": "none",
+                    "nsg": "new",
+                    "udr": "none"
+                }
+            ]
+        },
+        "subnetCount": {
+            "value": 3
+        },
+        "ipamPools": {
+            "value": []
+        },
+        "networkManager": {},
+        "createNetworkManager": {
+            "value": false
+        },
+        "networkManagerName": {},
+        "avnmSubscriptionId": {},
+        "avnmResourceGroup": {}
+    }
+}

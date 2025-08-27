@@ -1,0 +1,65 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "availabilityZones": {
+            "value": []
+        },
+        "containerName": {
+            "value": "test-aci-owui"
+        },
+        "location": {
+            "value": "centralus"
+        },
+        "imageType": {
+            "value": "Public"
+        },
+        "imageName": {
+            "value": "openeuler/open-webui"
+        },
+        "osType": {
+            "value": "Linux"
+        },
+        "numberCpuCores": {
+            "value": "1"
+        },
+        "memory": {
+            "value": "1.5"
+        },
+        "restartPolicy": {
+            "value": "OnFailure"
+        },
+        "sku": {
+            "value": "Standard"
+        },
+        "ipAddressType": {
+            "value": "Private"
+        },
+        "ports": {
+            "value": [
+                {
+                    "port": "8080",
+                    "protocol": "TCP"
+                }
+            ]
+        },
+        "subnetName": {
+            "value": "test-aci-subnet"
+        },
+        "subnetAddressPrefix": {
+            "value": "10.0.1.0/24"
+        },
+        "workspaceRegion": {
+            "value": "centralus"
+        },
+        "workspaceSubId": {
+            "value": "89382f9a-deac-49be-a1af-9a3a8d7ceed3"
+        },
+        "workspaceResourceGroupName": {
+            "value": "DefaultResourceGroup-CUS"
+        },
+        "workspaceName": {
+            "value": "DefaultWorkspace-89382f9a-deac-49be-a1af-9a3a8d7ceed3-CUS"
+        }
+    }
+}

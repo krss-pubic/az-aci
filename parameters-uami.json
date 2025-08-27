@@ -1,0 +1,23 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "isolationScope": {
+            "value": "None"
+        },
+        "name": {
+            "value": "test-uami-agw-to-kv"
+        },
+        "location": {
+            "value": "centralus"
+        },
+        "tagsByResource": {
+            "value": {
+                "Microsoft.ManagedIdentity/userAssignedIdentities": {
+                    "Environment": "Development",
+                    "Organization": "Development"
+                }
+            }
+        }
+    }
+}

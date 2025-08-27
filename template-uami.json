@@ -1,0 +1,34 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "isolationScope": {
+            "type": "string",
+            "allowedValues": [
+                "None",
+                "Regional"
+            ]
+        },
+        "name": {
+            "type": "string"
+        },
+        "location": {
+            "type": "string"
+        },
+        "tagsByResource": {
+            "type": "object"
+        }
+    },
+    "resources": [
+        {
+            "apiVersion": "2024-11-30",
+            "name": "[parameters('name')]",
+            "location": "[parameters('location')]",
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "properties": {
+                "isolationScope": "[parameters('isolationScope')]"
+            },
+            "tags": "[ if(contains(parameters('tagsByResource'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), parameters('tagsByResource')['Microsoft.ManagedIdentity/userAssignedIdentities'], json('{}')) ]"
+        }
+    ]
+}
