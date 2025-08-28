@@ -1,5 +1,5 @@
 # Variables
-$prefix = "test-aci" # Prefix for all created objects
+$prefix = "test-aci2" # Prefix for all created objects
 $location = "EastUS2" # Target location for all deployed resources
 $subscriptionId = "89382f9a-deac-49be-a1af-9a3a8d7ceed3" # Subscription specific deployment
 $resourceGroupName = "${prefix}-rg"
@@ -16,10 +16,15 @@ $aciSubnetPrefix = "10.0.1.0/24"
 $miscSubnetName = "${prefix}-misc-subnet" # Used for Key Vault and other objects
 $miscSubnetPrefix = "10.0.2.0/24"
 $uamiName = "${prefix}-uami" # User Assigned Managed Identity name
-
-# Preexisting Key Vault info
 $keyVaultName = "${prefix}-kv"     
 $keyVaultResourceGroup = $resourceGroupName 
+$natName = "${prefix}-nat"
+$natPipName = "${prefix}-nat-pip"
+$containerName = "${prefix}-container"
+$containerImage = "openeuler/open-webui"
+$containerPort = 8080            # set the actual port your container listens on
+$aciCpu = 1
+$aciMem = 1.5
 
 # 1. Create Resource Group
 Write-Host "Creating Resource Group: $resourceGroupName"
@@ -32,15 +37,12 @@ if (-not $rg) {
 
 # 2. Create Virtual Network with Subnets and Delegation for ACI subnet
 Write-Host "Creating Virtual Network and Subnets"
-
 # Prepare subnet configurations including delegation for ACI subnet
 $aciDelegation = New-Object -TypeName Microsoft.Azure.Commands.Network.Models.PSDelegation
 $aciDelegation.Name = "aci-delegation"
 $aciDelegation.ServiceName = "Microsoft.ContainerInstance/containerGroups"
-
 $agwSubnet = New-AzVirtualNetworkSubnetConfig -Name $agwSubnetName -AddressPrefix $agwSubnetPrefix
 $aciSubnet = New-AzVirtualNetworkSubnetConfig -Name $aciSubnetName -AddressPrefix $aciSubnetPrefix -Delegations $aciDelegation
-
 $vnet = Get-AzVirtualNetwork -Name $vnetName -ResourceGroupName $resourceGroupName -ErrorAction SilentlyContinue
 if (-not $vnet) {
     $vnet = New-AzVirtualNetwork -Name $vnetName -ResourceGroupName $resourceGroupName -Location $location -AddressPrefix $vnetAddressSpace -Subnet $agwSubnet, $aciSubnet
