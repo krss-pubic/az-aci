@@ -9,6 +9,7 @@ Use ARM templates and PowerShell to automate deployment of a secure configuratio
     * Define all variables and parameters (prefix, location, resource group name, VNet/subnet address spaces, etc.)
 
 2. Create Resource Group
+    * Use ARM template
     * Name: ${prefix}-rg
     * Location: EastUS2
 
