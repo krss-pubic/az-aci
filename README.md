@@ -57,3 +57,21 @@ Use ARM templates and PowerShell to automate deployment of a secure configuratio
     * Verify container is running and accessible behind App Gateway.
     * Test for effect with a test URL and document results to deployment documentation.
 
+## Notes
+
+### Extract parameters from parameters.json
+``` powershell
+$paramFile = "./parameters-vnet.json"
+$paramJson = Get-Content $paramFile -Raw | ConvertFrom-Json
+
+$vnetParams = @{}
+foreach ($p in $paramJson.parameters.PSObject.Properties) {
+    # prefer the inner "value" if present
+    if ($p.Value.PSObject.Properties.Match('value')) {
+        $vnetParams[$p.Name] = $p.Value.value
+    } else {
+    # fallback to the entire parameter object
+        $vnetParams[$p.Name] = $p.Value
+    }
+}
+```
